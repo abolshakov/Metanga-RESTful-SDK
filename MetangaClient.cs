@@ -6,12 +6,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Metanga.Domain.Payments;
 using Metanga.SoftwareDevelopmentKit.Proxy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using Newtonsoft.Json.Serialization;
+using ElectronicPayment = Metanga.SoftwareDevelopmentKit.Proxy.ElectronicPayment;
 
 namespace Metanga.SoftwareDevelopmentKit.Rest
 {
@@ -25,6 +27,7 @@ namespace Metanga.SoftwareDevelopmentKit.Rest
     private static readonly Uri RestServiceSession = new Uri("RestService/session", UriKind.Relative);
     private static readonly Uri RestServiceEnrollment = new Uri("RestService/enrollment", UriKind.Relative);
     private static readonly Uri RestServiceSubscribe = new Uri("RestService/subscribe", UriKind.Relative);
+    private static readonly Uri RestServiceElectronicPayment = new Uri("RestService/electronicpayment", UriKind.Relative);
     private static readonly Uri RestServiceBulk = new Uri("RestService/bulk", UriKind.Relative);
     private const string TypeOfIdMetanga = "Metanga";
     private const string TypeOfIdExternal = "External";
@@ -338,6 +341,64 @@ namespace Metanga.SoftwareDevelopmentKit.Rest
     {
       return Modify(subscription, effectiveDate, InvoiceAction.InvoiceNext);
     }
+
+    #region Electronic Payments
+
+    /// <summary>
+    /// Submits request on creation of funds withdrawing operation using the credit card or the bank account payment instruments.
+    /// </summary>
+    /// <param name="electronicPayment">The entity, populated with data required to process the funds withdrawing operation.</param>
+    /// <returns>Modified entity which contains the result of payment transaction.</returns>
+    public ElectronicPayment SubmitElectronicPayment(ElectronicPayment electronicPayment)
+    {
+      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentRestOperation.Submit);
+    }
+
+    /// <summary>
+    /// Submits request on full or partial refund operation using the credit card or the bank account payment instruments.
+    /// </summary>
+    /// <param name="electronicPayment">The entity, populated with data required to process the funds withdrawing operation.</param>
+    /// <returns>Modified entity which contains the result of payment transaction.</returns>
+    public ElectronicPayment CreditElectronicPayment(ElectronicPayment electronicPayment)
+    {
+      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentRestOperation.Credit);
+    }
+
+    /// <summary>
+    /// Submits request on full refund operation using the credit card or the bank account payment instruments.
+    /// </summary>
+    /// <param name="electronicPayment">The entity, populated with data required to process the funds withdrawing operation.</param>
+    /// <returns>Modified entity which contains the result of payment transaction.</returns>
+    public ElectronicPayment ReverseElectronicPayment(ElectronicPayment electronicPayment)
+    {
+      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentRestOperation.Reverse);
+    }
+
+    private ElectronicPayment ProcessElectronicPayment(ElectronicPayment electronicPayment, ElectronicPaymentRestOperation paymentOperation)
+    {
+      var electronicPaymentAddress = new Uri(ServiceAddress, RestServiceElectronicPayment);
+      using (var credentialStream = new MemoryStream())
+      {
+        var electronicPaymentParamsContent = SerializeObjectToJsonContent(electronicPayment, credentialStream);
+        ElectronicPayment returnElectronicPayment;
+        using (var httpClient = new HttpClient())
+        {
+          httpClient.DefaultRequestHeaders.Add("X-Metanga-SessionId", SessionId.ToString());
+          httpClient.DefaultRequestHeaders.Add("X-Metanga-PaymentOperation", paymentOperation.ToString());
+          var response = httpClient.PostAsync(electronicPaymentAddress, electronicPaymentParamsContent).Result;
+          CheckResponse(response, HttpStatusCode.Created);
+          var responseContent = response.Content.ReadAsStreamAsync();
+          using (var streamReader = new StreamReader(responseContent.Result, Encoding))
+          {
+            var jsonTextReader = new JsonTextReader(streamReader);
+            returnElectronicPayment = (ElectronicPayment) JsonSerializer.Deserialize(jsonTextReader, typeof (ElectronicPayment));
+          }
+        }
+        return returnElectronicPayment;
+      }
+    }
+
+    #endregion
 
     /// <summary>
     /// <para><strong><font color="green">Please note, this is only beta-version of functionality. You should use it for testing purposes.</font></strong></para>

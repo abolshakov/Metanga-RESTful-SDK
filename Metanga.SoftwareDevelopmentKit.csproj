@@ -108,6 +108,13 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Metanga.Domain\Metanga.Domain.csproj">
+      <Project>{30AD1B83-78D7-40D6-AB78-EF5D4125EA44}</Project>
+      <Name>Metanga.Domain</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
