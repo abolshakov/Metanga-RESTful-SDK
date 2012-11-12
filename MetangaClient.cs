@@ -343,36 +343,13 @@ namespace Metanga.SoftwareDevelopmentKit.Rest
     #region Electronic Payments
 
     /// <summary>
-    /// Submits request on creation of funds withdrawing operation using the credit card or the bank account payment instruments.
+    /// Process payment operation using the credit card or the bank account payment instruments.
+    /// (Submit, credit or reverse operation)
     /// </summary>
     /// <param name="electronicPayment">The entity, populated with data required to process the funds withdrawing operation.</param>
-    /// <returns>Modified entity which contains the result of payment transaction.</returns>
-    public ElectronicPayment SubmitElectronicPayment(ElectronicPayment electronicPayment)
-    {
-      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentOperation.Submit);
-    }
-
-    /// <summary>
-    /// Submits request on full or partial refund operation using the credit card or the bank account payment instruments.
-    /// </summary>
-    /// <param name="electronicPayment">The entity, populated with data required to process the funds withdrawing operation.</param>
-    /// <returns>Modified entity which contains the result of payment transaction.</returns>
-    public ElectronicPayment CreditElectronicPayment(ElectronicPayment electronicPayment)
-    {
-      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentOperation.Credit);
-    }
-
-    /// <summary>
-    /// Submits request on full refund operation using the credit card or the bank account payment instruments.
-    /// </summary>
-    /// <param name="electronicPayment">The entity, populated with data required to process the funds withdrawing operation.</param>
-    /// <returns>Modified entity which contains the result of payment transaction.</returns>
-    public ElectronicPayment ReverseElectronicPayment(ElectronicPayment electronicPayment)
-    {
-      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentOperation.Reverse);
-    }
-
-    private ElectronicPayment ProcessElectronicPayment(ElectronicPayment electronicPayment, ElectronicPaymentOperation paymentOperation)
+    /// <param name="paymentOperation">Type of operation</param>
+    /// <returns></returns>
+    public ElectronicPayment ProcessElectronicPayment(ElectronicPayment electronicPayment, ElectronicPaymentOperation paymentOperation)
     {
       var electronicPaymentAddress = new Uri(ServiceAddress, RestServiceElectronicPayment);
       using (var credentialStream = new MemoryStream())
