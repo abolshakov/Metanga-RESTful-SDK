@@ -6,14 +6,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Metanga.Domain.Payments;
 using Metanga.SoftwareDevelopmentKit.Proxy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using Newtonsoft.Json.Serialization;
-using ElectronicPayment = Metanga.SoftwareDevelopmentKit.Proxy.ElectronicPayment;
 
 namespace Metanga.SoftwareDevelopmentKit.Rest
 {
@@ -351,7 +349,7 @@ namespace Metanga.SoftwareDevelopmentKit.Rest
     /// <returns>Modified entity which contains the result of payment transaction.</returns>
     public ElectronicPayment SubmitElectronicPayment(ElectronicPayment electronicPayment)
     {
-      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentRestOperation.Submit);
+      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentOperation.Submit);
     }
 
     /// <summary>
@@ -361,7 +359,7 @@ namespace Metanga.SoftwareDevelopmentKit.Rest
     /// <returns>Modified entity which contains the result of payment transaction.</returns>
     public ElectronicPayment CreditElectronicPayment(ElectronicPayment electronicPayment)
     {
-      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentRestOperation.Credit);
+      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentOperation.Credit);
     }
 
     /// <summary>
@@ -371,10 +369,10 @@ namespace Metanga.SoftwareDevelopmentKit.Rest
     /// <returns>Modified entity which contains the result of payment transaction.</returns>
     public ElectronicPayment ReverseElectronicPayment(ElectronicPayment electronicPayment)
     {
-      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentRestOperation.Reverse);
+      return ProcessElectronicPayment(electronicPayment, ElectronicPaymentOperation.Reverse);
     }
 
-    private ElectronicPayment ProcessElectronicPayment(ElectronicPayment electronicPayment, ElectronicPaymentRestOperation paymentOperation)
+    private ElectronicPayment ProcessElectronicPayment(ElectronicPayment electronicPayment, ElectronicPaymentOperation paymentOperation)
     {
       var electronicPaymentAddress = new Uri(ServiceAddress, RestServiceElectronicPayment);
       using (var credentialStream = new MemoryStream())
